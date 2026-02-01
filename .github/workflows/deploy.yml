@@ -28,9 +28,7 @@ jobs:
 
       # 安装依赖
       - name: Install dependencies
-        run: |
-          cd cloudflare-worker
-          npm ci
+        run: npm ci
 
       # 部署到 Cloudflare Workers
       - name: Deploy to Cloudflare Workers
@@ -38,4 +36,3 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: cloudflare-worker
