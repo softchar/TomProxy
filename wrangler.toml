@@ -10,8 +10,10 @@ compatibility_date = "2024-01-01"
 # API_KEY = "your-api-key"
 
 # 配置路由（绑定自定义域名）
-# 注意：需要先在 Cloudflare Dashboard 确认你的 zone_id
-routes = [
-  { pattern = "softchar.xyz/fapi/*", zone_name = "softchar.xyz" },
-  { pattern = "softchar.xyz/api/fapi/*", zone_name = "softchar.xyz" }
-]
+# 注意：使用 Custom Domains 功能而不是 Routes
+# 在 Cloudflare Dashboard: Workers & Pages -> ba-api-proxy -> Settings -> Custom Domains
+# 添加: api.softchar.xyz
+# routes = [
+#   { pattern = "softchar.xyz/fapi/*", zone_name = "softchar.xyz" },
+#   { pattern = "softchar.xyz/api/fapi/*", zone_name = "softchar.xyz" }
+# ]
