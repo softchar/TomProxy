@@ -11,7 +11,8 @@
  */
 
 // Binance API 基础URL
-const BINANCE_API = 'https://fapi.binance.com';
+// const BINANCE_API = 'https://fapi.binance.com';
+const BINANCE_API = 'https://httpbin.org/get';
 
 /**
  * 处理 CORS 预检请求
