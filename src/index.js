@@ -82,10 +82,12 @@ export default {
       }
 
       // 提取要代理的路径
-      // 移除 /api 前缀（如果存在）
+      // 移除 /api 或 /binance 前缀（如果存在）
       let proxyPath = url.pathname;
       if (proxyPath.startsWith('/api')) {
         proxyPath = proxyPath.substring(4);
+      } else if (proxyPath.startsWith('/binance')) {
+        proxyPath = proxyPath.substring(8);
       }
 
       // 构建目标 URL
