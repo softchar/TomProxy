@@ -18,6 +18,7 @@ const BINANCE_API = 'https://fapi.binance.com';
  */
 function handleOptions(request) {
   const headers = {
+    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, User-Agent',
@@ -70,34 +71,63 @@ export default {
 
       // 转发请求到 Binance
       const headers = new Headers();
-      headers.set('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-      headers.set('Accept', 'application/json');
+
+      // 设置更完整的请求头，模拟真实浏览器请求
+      headers.set('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+      headers.set('Accept', 'application/json, text/plain, */*');
+      headers.set('Accept-Language', 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7');
+      headers.set('Accept-Encoding', 'gzip, deflate, br');
+      headers.set('Origin', 'https://www.binance.com');
+      headers.set('Referer', 'https://www.binance.com/');
+      headers.set('Sec-Fetch-Dest', 'empty');
+      headers.set('Sec-Fetch-Mode', 'cors');
+      headers.set('Sec-Fetch-Site', 'same-site');
 
       // 复制原始请求的相关头部
       if (request.headers.has('Authorization')) {
         headers.set('Authorization', request.headers.get('Authorization'));
+      }
+      if (request.headers.has('Content-Type')) {
+        headers.set('Content-Type', request.headers.get('Content-Type'));
+      }
+      if (request.headers.has('X-MBX-APIKEY')) {
+        headers.set('X-MBX-APIKEY', request.headers.get('X-MBX-APIKEY'));
       }
 
       const proxyRequest = new Request(targetUrl, {
         method: request.method,
         headers: headers,
         body: request.method !== 'GET' ? request.body : null,
+        redirect: 'follow',
       });
 
       const response = await fetch(proxyRequest);
 
-      // 处理响应
-      const responseBody = await response.text();
+      // 处理响应 - 保留原始响应头
+      const responseHeaders = new Headers();
 
-      // 返回响应，添加 CORS 头
-      return new Response(responseBody, {
+      // 复制所有响应头（除了某些会被 Cloudflare Workers 覆盖的头）
+      for (const [key, value] of response.headers.entries()) {
+        if (key.toLowerCase() !== 'content-encoding' &&
+            key.toLowerCase() !== 'transfer-encoding') {
+          responseHeaders.set(key, value);
+        }
+      }
+
+      // 添加 CORS 头
+      responseHeaders.set('Access-Control-Allow-Origin', '*');
+      responseHeaders.set('Access-Control-Allow-Credentials', 'true');
+
+      // 确保内容类型正确
+      if (!responseHeaders.has('Content-Type')) {
+        responseHeaders.set('Content-Type', 'application/json');
+      }
+
+      // 返回响应
+      return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'public, max-age=60', // 缓存 60 秒
-        },
+        headers: responseHeaders,
       });
 
     } catch (error) {
