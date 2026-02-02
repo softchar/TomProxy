@@ -57,6 +57,30 @@ export default {
         });
       }
 
+      // 调试端点 - 显示请求将如何被转发
+      if (url.pathname === '/debug') {
+        let proxyPath = url.pathname;
+        if (proxyPath.startsWith('/api')) {
+          proxyPath = proxyPath.substring(4);
+        }
+        const targetUrl = `${BINANCE_API}${proxyPath}${url.search}`;
+
+        return new Response(JSON.stringify({
+          original_url: request.url,
+          pathname: url.pathname,
+          search: url.search,
+          proxy_path: proxyPath,
+          target_url: targetUrl,
+          method: request.method,
+          headers: Object.fromEntries(request.headers.entries()),
+        }, null, 2), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        });
+      }
+
       // 提取要代理的路径
       // 移除 /api 前缀（如果存在）
       let proxyPath = url.pathname;
@@ -102,6 +126,9 @@ export default {
       });
 
       const response = await fetch(proxyRequest);
+
+      // 详细日志：记录响应状态
+      console.log(`[Response] Status: ${response.status}, Headers:`, Object.fromEntries(response.headers.entries()));
 
       // 处理响应 - 保留原始响应头
       const responseHeaders = new Headers();
