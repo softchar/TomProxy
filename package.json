@@ -1,7 +1,7 @@
 {
-  "name": "binance-api-proxy-worker",
+  "name": "ba-api-proxy-worker",
   "version": "1.0.0",
-  "description": "Binance API 代理 - Cloudflare Workers",
+  "description": "API 代理 - Cloudflare Workers",
   "main": "src/index.js",
   "scripts": {
     "dev": "wrangler dev",
